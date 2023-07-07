@@ -1,4 +1,4 @@
-package com.ashik.jokes.api;
+package com.ashik.apis;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
