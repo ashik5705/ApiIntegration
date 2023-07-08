@@ -1,2 +1,2 @@
 # ApiIntegrations
-Integrates Jokes api, Weather api 
+Integrates Jokes api, Weather api.
