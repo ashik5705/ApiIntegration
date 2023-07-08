@@ -6,6 +6,11 @@ import java.net.http.HttpResponse;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @SpringBootApplication
 public class ApiIntegrationApplication {
 
@@ -34,8 +39,44 @@ public class ApiIntegrationApplication {
 				e.printStackTrace();
 			}
 
-			System.out.println(response.body());
+			if(response == null) {
+				return;
+			}
+			extrackAndPrintResponse(response.body());
 		}
 		
+	}
+
+	private static void extrackAndPrintResponse(String jsonResponse) {
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = null;
+        String locationName = null;
+        String country = null;
+        double temperatureC = 0.0;
+        double temperatureF = 0.0;
+        String conditionText = null;
+		try {
+			jsonNode = objectMapper.readTree(jsonResponse);
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+        // Extract specific fields
+		if(jsonNode!=null) {
+			locationName = jsonNode.get("location").get("name").asText();
+	        country = jsonNode.get("location").get("country").asText();
+	        temperatureC = jsonNode.get("current").get("temp_c").asDouble();
+	        temperatureF = jsonNode.get("current").get("temp_f").asDouble();
+	        conditionText = jsonNode.get("current").get("condition").get("text").asText();
+		}
+        // Print the extracted data
+        System.out.println("Location Name: " + locationName);
+        System.out.println("Country: " + country);
+        System.out.println("Temperature (C): " + temperatureC);
+        System.out.println("Temperature (F): " + temperatureF);
+        System.out.println("Condition: " + conditionText);
 	}
 }
