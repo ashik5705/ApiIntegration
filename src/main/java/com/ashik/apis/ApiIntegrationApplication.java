@@ -1,5 +1,7 @@
 package com.ashik.apis;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 
@@ -10,6 +12,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Call;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
 
 @SpringBootApplication
 public class ApiIntegrationApplication {
@@ -31,7 +37,7 @@ public class ApiIntegrationApplication {
 			System.out.println(response.body());
 		}
 		
-		if (EnableApis.ENABLE_WEATHER_API) {
+		if (EnableApis.DISABLE_WEATHER_API) {
 			WeatherApiIntegration request = new WeatherApiIntegration();
 			try {
 				response = HttpClient.newHttpClient().send(request.getHttpRequest(),HttpResponse.BodyHandlers.ofString());
@@ -43,6 +49,36 @@ public class ApiIntegrationApplication {
 				return;
 			}
 			extrackAndPrintResponse(response.body());
+		}
+		
+		if(EnableApis.ENABLE_TWILIO_SDK) {
+			Twilio.init(EnableApis.TWILIO_ACCOUNT_SID, EnableApis.TWILIO_AUTH_TOKEN);
+	        Message message = Message.creator(
+	                new com.twilio.type.PhoneNumber("+8801301707917"),
+//	                new com.twilio.type.PhoneNumber("+8801858799182"),
+	                new com.twilio.type.PhoneNumber(EnableApis.MY_TWILIO_NUMBER),
+	                "Hi again from Twilio")
+	            .create();
+
+	        System.out.println(message.getSid());
+		}
+		
+		if (EnableApis.ENABLE_TWILIO_SDK_FOR_CALL) {
+			Twilio.init(EnableApis.TWILIO_ACCOUNT_SID, EnableApis.TWILIO_AUTH_TOKEN);
+
+			String from = EnableApis.MY_TWILIO_NUMBER;
+			String to = "+8801301707917";
+
+			Call call = null;
+			try {
+				call = Call.creator(new PhoneNumber(to), new PhoneNumber(from),
+						new URI("http://demo.twilio.com/docs/voice.xml")).create();
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			System.out.println(call.getSid());
 		}
 		
 	}
